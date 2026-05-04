@@ -1,0 +1,192 @@
+{
+  "title": "七年级数学 一元一次方程",
+  "subject": "math",
+  "grade_level": "七年级",
+  "total_minutes": 49,
+  "knowledge_graph": [
+    {
+      "id": "KP01",
+      "title": "方程的定义",
+      "description": "含有未知数的等式叫方程。一元一次方程是只含有一个未知数，并且未知数的次数是 1 的方程。",
+      "difficulty": "easy",
+      "prerequisites": [],
+      "bloom_level": "remember",
+      "estimated_minutes": 4,
+      "keywords": [
+        "方程的定义",
+        "含有未知数的等式",
+        "叫方程",
+        "一元一次方程是只",
+        "含有一个未知数",
+        "并且未知数的次数",
+        "的方程"
+      ],
+      "examples": []
+    },
+    {
+      "id": "KP02",
+      "title": "等式的性质",
+      "description": "等式两边同时加上或减去同一个数，结果仍然相等。等式两边同时乘以或除以同一个不为 0 的数，结果仍然相等。",
+      "difficulty": "easy",
+      "prerequisites": [],
+      "bloom_level": "remember",
+      "estimated_minutes": 4,
+      "keywords": [
+        "等式的性质",
+        "等式两边同时加上",
+        "或减去同一个数",
+        "结果仍然相等",
+        "等式两边同时乘以",
+        "或除以同一个不为",
+        "的数"
+      ],
+      "examples": []
+    },
+    {
+      "id": "KP03",
+      "title": "移项法则",
+      "description": "把方程中的某一项从等号一边移到另一边时，要改变符号。移项的本质来自等式的性质。",
+      "difficulty": "medium",
+      "prerequisites": [
+        "KP02"
+      ],
+      "bloom_level": "understand",
+      "estimated_minutes": 6,
+      "keywords": [
+        "移项法则",
+        "把方程中的某一项",
+        "从等号一边移到另",
+        "一边时",
+        "要改变符号",
+        "移项的本质来自等",
+        "式的性质"
+      ],
+      "examples": []
+    },
+    {
+      "id": "KP04",
+      "title": "解一元一次方程的步骤",
+      "description": "一般步骤包括去括号、移项、合并同类项、系数化为 1。需要检查每一步是否保持等式相等。",
+      "difficulty": "hard",
+      "prerequisites": [
+        "KP03"
+      ],
+      "bloom_level": "understand",
+      "estimated_minutes": 8,
+      "keywords": [
+        "解一元一次方程的",
+        "步骤",
+        "一般步骤包括去括",
+        "移项",
+        "合并同类项",
+        "系数化为",
+        "需要检查每一步是",
+        "否保持等式相等"
+      ],
+      "examples": []
+    },
+    {
+      "id": "KP05",
+      "title": "应用题建模",
+      "description": "应用题需要先找等量关系，再设未知数，列方程并求解。最后要检验答案是否符合实际情境。",
+      "difficulty": "hard",
+      "prerequisites": [
+        "KP04"
+      ],
+      "bloom_level": "analyze",
+      "estimated_minutes": 8,
+      "keywords": [
+        "应用题建模",
+        "应用题需要先找等",
+        "量关系",
+        "再设未知数",
+        "列方程并求解",
+        "最后要检验答案是",
+        "否符合实际情境"
+      ],
+      "examples": []
+    }
+  ],
+  "page_plan": [
+    {
+      "page_type": "objectives",
+      "title": "教学目标",
+      "knowledge_point_id": null,
+      "difficulty": "easy",
+      "bloom_level": "understand",
+      "estimated_minutes": 2
+    },
+    {
+      "page_type": "concept",
+      "title": "方程的定义",
+      "knowledge_point_id": "KP01",
+      "difficulty": "easy",
+      "bloom_level": "remember",
+      "estimated_minutes": 4
+    },
+    {
+      "page_type": "concept",
+      "title": "等式的性质",
+      "knowledge_point_id": "KP02",
+      "difficulty": "easy",
+      "bloom_level": "remember",
+      "estimated_minutes": 4
+    },
+    {
+      "page_type": "concept",
+      "title": "移项法则",
+      "knowledge_point_id": "KP03",
+      "difficulty": "medium",
+      "bloom_level": "understand",
+      "estimated_minutes": 6
+    },
+    {
+      "page_type": "quiz",
+      "title": "随堂练习：移项法则",
+      "knowledge_point_id": "KP03",
+      "difficulty": "medium",
+      "bloom_level": "apply",
+      "estimated_minutes": 4
+    },
+    {
+      "page_type": "concept",
+      "title": "解一元一次方程的步骤",
+      "knowledge_point_id": "KP04",
+      "difficulty": "hard",
+      "bloom_level": "understand",
+      "estimated_minutes": 8
+    },
+    {
+      "page_type": "example",
+      "title": "解一元一次方程的步骤：例题演示",
+      "knowledge_point_id": "KP04",
+      "difficulty": "hard",
+      "bloom_level": "apply",
+      "estimated_minutes": 5
+    },
+    {
+      "page_type": "concept",
+      "title": "应用题建模",
+      "knowledge_point_id": "KP05",
+      "difficulty": "hard",
+      "bloom_level": "analyze",
+      "estimated_minutes": 8
+    },
+    {
+      "page_type": "example",
+      "title": "应用题建模：例题演示",
+      "knowledge_point_id": "KP05",
+      "difficulty": "hard",
+      "bloom_level": "apply",
+      "estimated_minutes": 5
+    },
+    {
+      "page_type": "summary",
+      "title": "知识总结",
+      "knowledge_point_id": null,
+      "difficulty": "easy",
+      "bloom_level": "understand",
+      "estimated_minutes": 3
+    }
+  ]
+}

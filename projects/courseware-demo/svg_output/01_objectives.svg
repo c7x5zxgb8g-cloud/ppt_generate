@@ -1,0 +1,37 @@
+<svg width="1280" height="720" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg">
+  <g id="layer-background">
+    <rect x="0" y="0" width="1280" height="720" fill="#F7FBFF"/>
+    <circle cx="1120" cy="120" r="92" fill="#BFDBFE" fill-opacity="0.55"/>
+    <circle cx="140" cy="635" r="120" fill="#BFDBFE" fill-opacity="0.35"/>
+  </g>
+  <g id="layer-context">
+    <rect x="80" y="120" width="1120" height="72" rx="18" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="2"/>
+    <text x="112" y="166" font-family="Microsoft YaHei, PingFang SC, Arial, sans-serif" font-size="24" font-weight="700" fill="#2563EB">本节问题：如何用方程表示并解决实际问题？</text>
+  </g>
+  <g id="layer-content">
+    <text x="80" y="78" font-family="Microsoft YaHei, PingFang SC, Arial, sans-serif" font-size="40" font-weight="700" fill="#111827">教学目标</text>
+    <g id="objective-1">
+      <rect x="110" y="250" width="320" height="210" rx="20" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="2"/>
+      <text x="142" y="306" font-family="Microsoft YaHei, PingFang SC, Arial, sans-serif" font-size="30" font-weight="700" fill="#2563EB">识别</text>
+      <text x="142" y="356" font-family="Microsoft YaHei, PingFang SC, Arial, sans-serif" font-size="24" fill="#111827">判断一个式子是否为一元一次方程</text>
+    </g>
+    <g id="objective-2">
+      <rect x="480" y="250" width="320" height="210" rx="20" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="2"/>
+      <text x="512" y="306" font-family="Microsoft YaHei, PingFang SC, Arial, sans-serif" font-size="30" font-weight="700" fill="#2563EB">解释</text>
+      <text x="512" y="356" font-family="Microsoft YaHei, PingFang SC, Arial, sans-serif" font-size="24" fill="#111827">说明移项为什么要变号</text>
+    </g>
+    <g id="objective-3">
+      <rect x="850" y="250" width="320" height="210" rx="20" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="2"/>
+      <text x="882" y="306" font-family="Microsoft YaHei, PingFang SC, Arial, sans-serif" font-size="30" font-weight="700" fill="#2563EB">解决</text>
+      <text x="882" y="356" font-family="Microsoft YaHei, PingFang SC, Arial, sans-serif" font-size="24" fill="#111827">按步骤求解简单应用题</text>
+    </g>
+  </g>
+  <g id="layer-guidance">
+    <rect x="250" y="520" width="780" height="58" rx="18" fill="#F59E0B" fill-opacity="0.14" stroke="#F59E0B" stroke-width="2"/>
+    <text x="640" y="557" text-anchor="middle" font-family="Microsoft YaHei, PingFang SC, Arial, sans-serif" font-size="24" font-weight="700" fill="#111827">完成后，你将能用方程描述一个真实情境。</text>
+  </g>
+  <g id="layer-chrome">
+    <text x="80" y="664" font-family="Microsoft YaHei, PingFang SC, Arial, sans-serif" font-size="17" fill="#4B5563">七年级数学 · 一元一次方程</text>
+    <text x="1200" y="664" text-anchor="end" font-family="Microsoft YaHei, PingFang SC, Arial, sans-serif" font-size="17" fill="#4B5563">P01</text>
+  </g>
+</svg>
