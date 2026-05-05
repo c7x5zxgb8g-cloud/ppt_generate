@@ -214,6 +214,12 @@ episodes, character emotions, props, and digital-person actions as image rows,
 not as optional decoration. Example: "一张拍立得照片，内容是女孩小青低着头，脸红到了耳根"
 must become an `Acquire Via: ai` illustration row and then appear on that slide.
 
+**Courseware copy parsing rule**: labels such as `档案袋文字`, `数字人对话框`,
+`知识点标签`, `左侧`, `右侧`, and `排版要求` are usually design roles or placement
+instructions. They must not be promoted to visible component headings by default.
+Visible slide copy comes from quoted text, task statements, case narratives,
+and explicit labels inside the design instruction.
+
 **When selection includes B**, you must run `python3 scripts/analyze_images.py <project_path>/images` before outputting the spec, and integrate scan results into the image resource list.
 
 **When B / C / D / E is selected**, add an image resource list to the spec:

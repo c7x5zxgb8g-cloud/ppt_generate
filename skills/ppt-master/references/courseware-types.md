@@ -100,6 +100,29 @@ cannot produce the image, the page should keep a clearly sized image placeholder
 and the deck should stop at the image-readiness gate before final export unless
 the user explicitly accepts placeholder output.
 
+## 4.2 Design Brief Parsing Rules
+
+Courseware source documents often mix layout instructions and student-facing
+copy in the same bullet:
+
+- `档案袋文字：右侧放置一个打开的信封/档案袋图形，里面写着：“……”`
+- `数字人对话框：豆包侦探气泡框：“……”`
+- `知识点标签：底部标签：“……”`
+
+The label before the colon describes the design role, not necessarily visible
+copy. Strategist and Executor must separate:
+
+- **Visual container / role**: `档案袋文字`, `数字人对话框`, `知识点标签`, `左侧`,
+  `右侧`, `排版要求`, `动效提示` describe where and how to render content.
+- **Visible student-facing copy**: quoted text, listed labels, task prompts,
+  knowledge-point sentences, and case narratives are what should appear on the
+  slide.
+
+Do not turn design-role labels into component headings unless the source clearly
+asks for that exact label to be visible. For the example above, render an open
+envelope / file-bag shape and place the quoted case narrative inside it; do not
+show a large heading called `档案袋文字` or `档案袋`.
+
 ### comparison
 
 - Compare 2-4 concepts, methods, or positions.
