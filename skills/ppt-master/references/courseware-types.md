@@ -123,6 +123,26 @@ asks for that exact label to be visible. For the example above, render an open
 envelope / file-bag shape and place the quoted case narrative inside it; do not
 show a large heading called `档案袋文字` or `档案袋`.
 
+## 4.3 Case Scene Composition Pattern
+
+When a courseware page describes a story case with an image plus a document-like
+text container, prefer a complete teaching scene instead of isolated cards:
+
+- Page title and subtitle stay visible as the lesson anchor.
+- The AI scene image should be presented in the requested metaphor, such as a
+  polaroid photo, comic panel, blackboard drawing, worksheet, or phone screen.
+- The quoted case narrative should sit inside the requested container, such as
+  an open envelope / file folder / notebook page, rather than appearing as a
+  generic bullet list.
+- Digital-person or teacher guidance belongs in a speech bubble or silhouette
+  area, not as a competing content card.
+- Knowledge-point text should appear as a seal, label, footer ribbon, or
+  revealable feedback layer, matching the source's "知识点标签" intent.
+
+This pattern is especially important for pages like "第二案：害羞怪兽的恶作剧":
+the polaroid image, file-bag case text, teacher cue, and knowledge tag together
+create the learning stimulus.
+
 ### comparison
 
 - Compare 2-4 concepts, methods, or positions.
