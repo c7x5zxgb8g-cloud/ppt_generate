@@ -143,6 +143,25 @@ This pattern is especially important for pages like "第二案：害羞怪兽的
 the polaroid image, file-bag case text, teacher cue, and knowledge tag together
 create the learning stimulus.
 
+## 4.4 Activity Page Composition Pattern
+
+When a page is an in-class activity (`互动讨论页`, `小组议事堂`, `任务指令`,
+`讨论话题`, `汇报模板`, `学生输出区`), preserve the activity mechanics as visible
+teaching structure. Do not flatten it into a generic multi-card summary.
+
+Recommended structure:
+
+- Put the activity metaphor in the visual center, such as a time machine,
+  balance scale, lab table, voting board, or discussion table.
+- Place task instruction, discussion question, output template, and knowledge
+  point around the metaphor as separate editable teaching units.
+- Put the student response area in `layer-interaction`, not in the same group as
+  static content.
+- Put the reference answer / teaching takeaway in `layer-feedback` so it can be
+  revealed after discussion.
+- Use `layer-guidance` for arrows, sequencing cues, teacher hints, or motion
+  suggestions such as "打字机出现"; do not encode unsupported SVG animation.
+
 ### comparison
 
 - Compare 2-4 concepts, methods, or positions.
