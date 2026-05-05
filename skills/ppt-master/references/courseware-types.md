@@ -162,6 +162,24 @@ Recommended structure:
 - Use `layer-guidance` for arrows, sequencing cues, teacher hints, or motion
   suggestions such as "打字机出现"; do not encode unsupported SVG animation.
 
+## 4.5 Metaphor Comparison Page Pattern
+
+When a page uses a physical metaphor to compare two ideas (`天平`, `温度计`,
+`桥梁`, `暗雷`, `能量站`, etc.), render the metaphor as the page's primary
+teaching object. Do not replace it with a generic icon plus text boxes.
+
+Recommended structure:
+
+- Put the metaphor object in `layer-content` as a large editable visual system.
+- Preserve asymmetry when the source implies it, such as a balance scale tilted
+  toward the heavier side.
+- Map each listed phrase to a visual token: light bubbles for small worries,
+  heavy blocks for consequences, thermometer ticks for intensity, bridge planks
+  for connection, and so on.
+- Put the comparison question in `layer-interaction`.
+- Put the conclusion / knowledge tag in `layer-feedback` so the teacher can
+  reveal it after students reason from the visual evidence.
+
 ### comparison
 
 - Compare 2-4 concepts, methods, or positions.
