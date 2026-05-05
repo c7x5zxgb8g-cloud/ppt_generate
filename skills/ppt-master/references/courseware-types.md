@@ -95,6 +95,13 @@ Strategist must add an `Image Resource List` row with `Acquire Via: ai` for:
 - Any page where the source says "插图", "照片", "画面", "场景", "数字人", or
   describes visual placement in detail.
 
+Before writing `design_spec.md`, Strategist must run a page-by-page visual
+trigger audit. For each page, record whether it contains trigger words such as
+`插图`, `照片`, `画面`, `场景`, `案发现场`, `拍立得`, `黑板`, `档案墙`, `电话`,
+`温度计`, `天平`, `桥梁`, or a character emotion/action. Any triggered page must
+either have an image resource row or an explicit reason that no separate image is
+needed because the metaphor is built as editable SVG primitives.
+
 Executor must not replace such rows with generic icons or text cards. If Step 5
 cannot produce the image, the page should keep a clearly sized image placeholder
 and the deck should stop at the image-readiness gate before final export unless
