@@ -207,6 +207,13 @@ Selection is automatic in Step 5 (A → B → Manual). Detailed contract: [`imag
 
 Selections may be mixed at the row level — e.g. a deck can use C for hero illustrations while sourcing D for supporting team photos.
 
+**Courseware scene rule**: when Courseware Mode is active, C) AI-generated is
+required for every source-described teaching scene unless the user has already
+provided a matching asset. Treat descriptions of photos, polaroids, classroom
+episodes, character emotions, props, and digital-person actions as image rows,
+not as optional decoration. Example: "一张拍立得照片，内容是女孩小青低着头，脸红到了耳根"
+must become an `Acquire Via: ai` illustration row and then appear on that slide.
+
 **When selection includes B**, you must run `python3 scripts/analyze_images.py <project_path>/images` before outputting the spec, and integrate scan results into the image resource list.
 
 **When B / C / D / E is selected**, add an image resource list to the spec:

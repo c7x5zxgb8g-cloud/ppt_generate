@@ -17,6 +17,9 @@ Core priorities:
 - **Cognitive load control**: one teaching move per slide whenever possible.
 - **Interaction design**: every lesson segment should include teacher prompts or student action.
 - **Layered reveal readiness**: slide elements must be organized into semantic layers for animation, editing, and staged teaching.
+- **Scene fidelity**: if the source describes a classroom scene, character action,
+  prop, photo, comic frame, or emotional moment, that description is a visual
+  asset requirement. Do not reduce it to a text card.
 
 ## 2. Page Types
 
@@ -64,12 +67,38 @@ Each courseware slide in `design_spec.md §IX` must include:
 - Solving steps max: 5.
 - Highlight the reasoning step, not just the final answer.
 - Speaker notes include common mistakes.
+- If the example is a story / classroom case / character moment, include an
+  AI-generated or user-provided scene illustration in `layer-context` or
+  `layer-content`. The image resource row must preserve the original scene
+  description rather than summarizing it away.
 
 ### quiz
 
 - Structure: question → student action → answer hidden in `layer-feedback`.
 - `layer-feedback` may be visually present but should be easy to animate/reveal later.
 - Speaker notes must include reference answer, explanation, common wrong answer, and teacher prompt.
+- When the quiz asks students to react to a concrete scene, generate or source
+  that scene as a visual stimulus before asking the question.
+
+## 4.1 Scene Illustration Requirements
+
+Courseware pages often contain visual instructions such as "一张拍立得照片，内容
+是女孩低着头，脸红到了耳根" or "操场上同学们垂头丧气". These are not decorative
+phrases; they are teaching stimuli.
+
+Strategist must add an `Image Resource List` row with `Acquire Via: ai` for:
+
+- Polaroid / photo / comic frame / blackboard scene descriptions.
+- Character actions, facial expressions, or classroom episodes.
+- Props that carry meaning: thermometer, balance scale, archive wall, phone call,
+  sticky notes, stage, worksheet, etc.
+- Any page where the source says "插图", "照片", "画面", "场景", "数字人", or
+  describes visual placement in detail.
+
+Executor must not replace such rows with generic icons or text cards. If Step 5
+cannot produce the image, the page should keep a clearly sized image placeholder
+and the deck should stop at the image-readiness gate before final export unless
+the user explicitly accepts placeholder output.
 
 ### comparison
 
