@@ -31,17 +31,17 @@ export PPT_MASTER_LLM_MODEL="gpt-5.5"
 
 也可以复用仓库根目录 `.env` 里的 `OPENAI_API_KEY` / `OPENAI_BASE_URL`。生产部署建议显式设置 `PPT_MASTER_LLM_*`，避免和 `image_gen.py` 使用的 `OPENAI_MODEL=gpt-image-2` 混在一起。
 
-图片提示词精修现在也支持单独配置；不配置时默认回退到 `PPT_MASTER_LLM_*`：
+图片提示词精修使用独立模型配置，不再复用 `PPT_MASTER_LLM_*`。例如用 DeepSeek 的 OpenAI-compatible API：
 
 ```bash
 export PPT_MASTER_IMAGE_PROMPT_REFINEMENT=true
 export PPT_MASTER_IMAGE_PROMPT_PROVIDER="openai-compatible"
-export PPT_MASTER_IMAGE_PROMPT_API_KEY="sk-..."
-export PPT_MASTER_IMAGE_PROMPT_BASE_URL="https://your-openai-compatible-endpoint/v1"
-export PPT_MASTER_IMAGE_PROMPT_MODEL="gpt-5.5"
+export PPT_MASTER_IMAGE_PROMPT_API_KEY="$DEEPSEEK_API_KEY"
+export PPT_MASTER_IMAGE_PROMPT_BASE_URL="https://api.deepseek.com/v1"
+export PPT_MASTER_IMAGE_PROMPT_MODEL="deepseek-chat"
 ```
 
-这组配置只用于“生图前的提示词润色”，不会影响 SVG / notes / 自修复主流程。
+这组配置只用于“生图前的提示词润色”，不会影响 SVG / notes / 自修复主流程。未配置 `PPT_MASTER_IMAGE_PROMPT_API_KEY` 或 `PPT_MASTER_IMAGE_PROMPT_MODEL` 时，提示词精修能力会关闭，主 PPT 生成仍按 `PPT_MASTER_LLM_*` 运行。
 
 API runner 提供接近 CLI agent 的受限工具能力：
 

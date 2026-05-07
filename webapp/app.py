@@ -47,6 +47,7 @@ SCRIPTS_DIR = REPO_ROOT / "skills" / "ppt-master" / "scripts"
 def load_env_file(path: Path) -> None:
     if not path.exists():
         return
+    env_context = dict(os.environ)
     for raw_line in path.read_text(encoding="utf-8", errors="replace").splitlines():
         line = raw_line.strip()
         if not line or line.startswith("#") or "=" not in line:
@@ -54,8 +55,18 @@ def load_env_file(path: Path) -> None:
         key, value = line.split("=", 1)
         key = key.strip()
         value = value.strip().strip('"').strip("'")
+        value = expand_env_value(value, env_context)
         if key and key not in os.environ:
             os.environ[key] = value
+            env_context[key] = value
+
+
+def expand_env_value(value: str, env_context: dict[str, str]) -> str:
+    def replace(match: re.Match[str]) -> str:
+        name = match.group(1) or match.group(2)
+        return env_context.get(name, match.group(0))
+
+    return re.sub(r"\$\{([A-Za-z_][A-Za-z0-9_]*)\}|\$([A-Za-z_][A-Za-z0-9_]*)", replace, value)
 
 
 def load_runtime_env() -> None:
@@ -727,44 +738,26 @@ def get_llm_model() -> str:
 
 
 def get_image_prompt_refinement_api_key() -> str:
-    return (
-        os.getenv("PPT_MASTER_IMAGE_PROMPT_API_KEY")
-        or get_llm_api_key()
-    ).strip()
+    return os.getenv("PPT_MASTER_IMAGE_PROMPT_API_KEY", "").strip()
 
 
 def get_image_prompt_refinement_base_url() -> str:
-    return (
-        os.getenv("PPT_MASTER_IMAGE_PROMPT_BASE_URL")
-        or get_llm_base_url()
-    ).strip()
+    return os.getenv("PPT_MASTER_IMAGE_PROMPT_BASE_URL", "").strip()
 
 
 def get_image_prompt_refinement_model() -> str:
-    return (
-        os.getenv("PPT_MASTER_IMAGE_PROMPT_MODEL")
-        or get_llm_model()
-    ).strip()
+    return os.getenv("PPT_MASTER_IMAGE_PROMPT_MODEL", "").strip()
 
 
 def get_image_prompt_refinement_provider() -> str:
     return (
         os.getenv("PPT_MASTER_IMAGE_PROMPT_PROVIDER")
-        or os.getenv("PPT_MASTER_LLM_PROVIDER")
         or "openai-compatible"
     ).strip()
 
 
 def is_image_prompt_refinement_configured_separately() -> bool:
-    return any(
-        bool(os.getenv(key, "").strip())
-        for key in (
-            "PPT_MASTER_IMAGE_PROMPT_API_KEY",
-            "PPT_MASTER_IMAGE_PROMPT_BASE_URL",
-            "PPT_MASTER_IMAGE_PROMPT_MODEL",
-            "PPT_MASTER_IMAGE_PROMPT_PROVIDER",
-        )
-    )
+    return bool(get_image_prompt_refinement_api_key() and get_image_prompt_refinement_model())
 
 
 def run_api_agent_generation(job_id: str, project_path: Path, project_name: str) -> dict[str, Any]:
@@ -1501,7 +1494,7 @@ Output requirements:
             "temperature": float(os.getenv("PPT_MASTER_IMAGE_PROMPT_TEMPERATURE", "0.35")),
             "timeout": float(os.getenv("PPT_MASTER_IMAGE_PROMPT_TIMEOUT", "120")),
         }
-        token_param = os.getenv("PPT_MASTER_LLM_TOKEN_PARAM", "max_tokens").strip()
+        token_param = os.getenv("PPT_MASTER_IMAGE_PROMPT_TOKEN_PARAM", "max_tokens").strip()
         if token_param in {"max_tokens", "max_completion_tokens"}:
             request_args[token_param] = int(os.getenv("PPT_MASTER_IMAGE_PROMPT_MAX_TOKENS", "1800"))
         response = client.chat.completions.create(**request_args)
