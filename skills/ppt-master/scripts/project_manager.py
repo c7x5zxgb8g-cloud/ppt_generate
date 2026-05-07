@@ -17,6 +17,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import urlparse
+from urllib.request import Request, urlopen
 
 try:
     from project_utils import (
@@ -278,7 +279,27 @@ class ProjectManager:
             ]
         )
 
+    def _import_text_url(self, url: str, markdown_path: Path) -> None:
+        request = Request(
+            url,
+            headers={
+                "User-Agent": (
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+                )
+            },
+        )
+        with urlopen(request, timeout=30) as response:
+            raw = response.read()
+            content_type = response.headers.get_content_charset() or "utf-8"
+        markdown_path.write_text(raw.decode(content_type, errors="replace"), encoding="utf-8")
+
     def _import_url(self, url: str, markdown_path: Path) -> None:
+        path_suffix = Path(urlparse(url).path).suffix.lower()
+        if path_suffix in TEXT_SOURCE_SUFFIXES | TABLE_TEXT_SUFFIXES:
+            self._import_text_url(url, markdown_path)
+            return
+
         # Prefer web_to_md.py: it uses curl_cffi internally when available,
         # which handles WeChat and other TLS-fingerprint-blocked sites.
         # Fall back to the Node.js version only when the URL is known to

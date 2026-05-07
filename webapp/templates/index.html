@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PPT Master Console</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">PPT Master</p>
+        <h1>生成工作台</h1>
+      </div>
+      <div class="account">
+        <span id="accountName">未登录</span>
+        <button class="ghost hidden" id="logoutBtn" type="button">退出</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="auth-view" id="authView">
+        <div class="auth-panel">
+          <div>
+            <h2>登录或创建账号</h2>
+            <p>账号用于隔离项目、源材料和导出文件。</p>
+          </div>
+          <form id="authForm">
+            <label>
+              邮箱
+              <input name="email" type="email" autocomplete="email" required />
+            </label>
+            <label>
+              显示名
+              <input name="displayName" autocomplete="name" />
+            </label>
+            <label>
+              密码
+              <input name="password" type="password" autocomplete="current-password" minlength="8" required />
+            </label>
+            <div class="button-row">
+              <button type="submit" data-mode="login">登录</button>
+              <button class="secondary" type="submit" data-mode="register">注册</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section class="app-view hidden" id="appView">
+        <aside class="sidebar">
+          <form class="create-project" id="createProjectForm">
+            <h2>新建项目</h2>
+            <label>
+              项目名称
+              <input name="name" placeholder="例如：Q3经营复盘" required />
+            </label>
+            <label>
+              画布
+              <select name="canvasFormat">
+                <option value="ppt169">PPT 16:9</option>
+                <option value="ppt43">PPT 4:3</option>
+                <option value="xiaohongshu">小红书 3:4</option>
+                <option value="moments">朋友圈 / IG 方图</option>
+                <option value="story">竖版 Story</option>
+                <option value="wechat">公众号头图</option>
+                <option value="banner">横幅 Banner</option>
+                <option value="a4">A4 Print</option>
+              </select>
+            </label>
+            <button type="submit">创建</button>
+          </form>
+
+          <div class="project-list" id="projectList"></div>
+        </aside>
+
+        <section class="workspace">
+          <div class="empty-state" id="emptyState">
+            <h2>选择一个项目开始</h2>
+            <p>上传源材料后，工作台会显示导入状态、预览状态和可执行的后续步骤。</p>
+          </div>
+
+          <div class="project-detail hidden" id="projectDetail">
+            <div class="detail-head">
+              <div>
+                <p class="eyebrow" id="projectFormat"></p>
+                <h2 id="projectTitle"></h2>
+                <p class="path" id="projectMeta"></p>
+              </div>
+              <button class="secondary" id="refreshBtn" type="button">刷新</button>
+            </div>
+
+            <div class="tool-strip">
+              <button data-job="generate_ppt" type="button">生成 PPT</button>
+              <button data-job="validate" type="button">校验结构</button>
+              <button data-job="quality_check" type="button">SVG 检查</button>
+              <button data-job="postprocess" type="button">后处理</button>
+              <button data-job="export" type="button">导出 PPTX</button>
+            </div>
+
+            <section class="status-band" id="statusBand">
+              <div>
+                <span class="status-pill" id="projectStatusLabel">待导入</span>
+                <h3>当前状态</h3>
+                <p id="projectStatusMessage">请先上传文档或导入 URL。</p>
+              </div>
+              <div class="status-counts">
+                <span id="aiRunnerStatus">AI 未配置</span>
+                <span id="sourceCount">0 源材料</span>
+                <span id="svgCount">0 SVG</span>
+                <span id="exportCount">0 导出</span>
+              </div>
+            </section>
+
+            <section class="upload-band">
+              <form id="uploadForm">
+                <label>
+                  上传源材料
+                  <input name="files" type="file" multiple />
+                </label>
+                <label>
+                  或导入 URL
+                  <input name="url" type="url" placeholder="https://..." />
+                </label>
+                <button id="importSubmitBtn" type="submit">导入</button>
+              </form>
+              <div class="import-status hidden" id="importStatus" role="status"></div>
+            </section>
+
+            <section class="preview-panel" id="previewPanel">
+              <div class="preview-head">
+                <div>
+                  <h3>幻灯片预览</h3>
+                  <p id="previewMeta">暂无可预览页面</p>
+                </div>
+                <div class="preview-actions">
+                  <button class="secondary" id="prevSlideBtn" type="button" aria-label="上一页">‹</button>
+                  <button class="secondary" id="nextSlideBtn" type="button" aria-label="下一页">›</button>
+                </div>
+              </div>
+              <div class="preview-stage">
+                <img id="slidePreview" alt="幻灯片预览" />
+                <div class="preview-empty" id="previewEmpty">生成 SVG 后即可预览</div>
+              </div>
+            </section>
+
+            <div class="file-grid">
+              <section>
+                <h3>源材料</h3>
+                <ul id="sourceFiles"></ul>
+              </section>
+              <section>
+                <h3>SVG</h3>
+                <ul id="svgFiles"></ul>
+              </section>
+              <section>
+                <h3>导出</h3>
+                <ul id="exportFiles"></ul>
+              </section>
+            </div>
+
+            <section class="job-panel">
+              <div class="job-head">
+                <h3>任务日志</h3>
+                <span id="jobStatus">空闲</span>
+              </div>
+              <pre id="jobLog"></pre>
+            </section>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <div class="toast hidden" id="toast"></div>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
