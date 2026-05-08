@@ -18,7 +18,7 @@ Dependencies:
 
 Notes:
     - Checks the one-to-one mapping between SVG files and speaker notes
-    - Outputs a notice if any SVG file has no corresponding notes
+    - Creates placeholder notes for SVG files with no corresponding notes
     - Split documents do not include the level-1 heading
     - Split document names match the SVG filenames with .md extension
 """
@@ -227,6 +227,41 @@ def check_svg_note_mapping(svg_files: list[Path], notes: dict[str, str]) -> tupl
     return len(missing_notes) == 0, missing_notes
 
 
+def build_placeholder_note(svg_stem: str) -> str:
+    """Build a non-blocking fallback note for slides missing speaker notes."""
+    return (
+        f"Speaker notes placeholder for {svg_stem}.\n\n"
+        "The generation step did not produce speaker notes for this slide. "
+        "Review and replace this placeholder if presenter notes are required."
+    )
+
+
+def align_notes_to_svg_files(
+    svg_files: list[Path],
+    notes: dict[str, str],
+    verbose: bool = True,
+) -> tuple[dict[str, str], list[str]]:
+    """Return notes ordered by SVG files, filling missing entries with placeholders."""
+    aligned: dict[str, str] = {}
+    missing_notes: list[str] = []
+
+    for svg_path in svg_files:
+        svg_stem = svg_path.stem
+        if svg_stem in notes:
+            aligned[svg_stem] = notes[svg_stem]
+        else:
+            missing_notes.append(svg_stem)
+            aligned[svg_stem] = build_placeholder_note(svg_stem)
+
+    if missing_notes and verbose:
+        print("[Warning] SVG files and notes do not fully match")
+        print(f"  Missing notes: {', '.join(missing_notes)}")
+        print("  Placeholder notes will be generated so export can continue.")
+        print()
+
+    return aligned, missing_notes
+
+
 def split_notes(notes: dict[str, str], output_dir: Path, verbose: bool = True) -> bool:
     """
     Split and save notes dictionary into multiple files
@@ -284,6 +319,7 @@ Examples:
 Features:
     - Reads the total.md speaker notes file
     - Checks the mapping between SVG files and notes
+    - Fills missing slide notes with placeholders instead of blocking export
     - Splits notes into multiple individual files
     - Output filenames match SVG filenames
 '''
@@ -328,26 +364,23 @@ Features:
     # Parse total.md
     total_md_path = project_path / 'notes' / 'total.md'
     svg_stems = [p.stem for p in svg_files]
-    notes = parse_total_md(total_md_path, svg_stems, verbose)
+    if total_md_path.exists():
+        notes = parse_total_md(total_md_path, svg_stems, verbose)
+    else:
+        notes = {}
+        if verbose:
+            print(f"[Warning] {total_md_path} file does not exist")
 
-    if not notes:
-        print("Error: No notes content found")
-        sys.exit(1)
+    if not notes and verbose:
+        print("[Warning] No notes content found; placeholder notes will be generated")
 
     if verbose:
         print(f"  Found {len(notes)} notes section(s)")
         print()
 
-    # Check mapping
-    all_match, missing_notes = check_svg_note_mapping(svg_files, notes)
+    notes, missing_notes = align_notes_to_svg_files(svg_files, notes, verbose)
 
-    if not all_match:
-        print("Error: SVG files and notes do not match")
-        print(f"  Missing notes: {', '.join(missing_notes)}")
-        print("\nPlease regenerate the notes file to ensure every SVG has corresponding notes.")
-        sys.exit(1)
-
-    if verbose:
+    if verbose and not missing_notes:
         print("[OK] SVG files and notes have one-to-one correspondence")
         print()
 
