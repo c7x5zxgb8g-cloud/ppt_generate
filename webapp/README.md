@@ -11,6 +11,24 @@ python3 -m webapp.app
 
 默认地址：<http://127.0.0.1:5001>
 
+生产环境建议用 Gunicorn 加载仓库根目录的 WSGI 入口：
+
+```bash
+gunicorn --bind 127.0.0.1:5001 --workers 1 --threads 4 --timeout 120 wsgi:app
+```
+
+也可以直接加载 Flask 模块：
+
+```bash
+gunicorn --bind 127.0.0.1:5001 --workers 1 --threads 4 --timeout 120 webapp.app:app
+```
+
+这里建议 `--workers 1`，用 `--threads` 扩并发请求。Web 控制台会在进程内启动后台任务线程池，并用 SQLite 与项目目录记录状态；多进程 worker 会增加 SQLite 写锁竞争和后台任务归属的不确定性。后台生成并发量用 `PPT_MASTER_WORKERS` 控制，例如：
+
+```bash
+export PPT_MASTER_WORKERS=2
+```
+
 首次注册的用户自动成为 `admin`。生产环境请至少设置：
 
 ```bash

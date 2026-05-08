@@ -9,3 +9,6 @@
 #   pip install -r skills/ppt-master/requirements.txt   # from anywhere / 任意位置
 #
 -r skills/ppt-master/requirements.txt
+
+# Web console production server / Web 控制台生产 WSGI 服务
+gunicorn>=22.0.0
