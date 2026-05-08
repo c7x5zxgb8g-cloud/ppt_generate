@@ -54,9 +54,15 @@ async function loadMe() {
 async function loadProjects() {
   const data = await api("/api/projects");
   state.projects = data.data;
+  const selectedProject = state.projects.find((project) => project.id === state.selectedProjectId);
+  if (state.selectedProjectId && !selectedProject) {
+    state.selectedProjectId = null;
+  }
   renderProjectList();
   if (state.selectedProjectId) {
-    renderProjectDetail(state.projects.find((project) => project.id === state.selectedProjectId));
+    renderProjectDetail(selectedProject);
+  } else {
+    renderProjectDetail(null);
   }
 }
 
@@ -71,16 +77,31 @@ function renderProjectList() {
   }
 
   for (const project of state.projects) {
+    const row = document.createElement("div");
+    row.className = `project-row ${project.id === state.selectedProjectId ? "active" : ""}`;
+
     const button = document.createElement("button");
     button.type = "button";
-    button.className = `project-item ${project.id === state.selectedProjectId ? "active" : ""}`;
+    button.className = "project-item";
     button.innerHTML = `<strong>${escapeHtml(project.name)}</strong><span>${project.canvasFormat} · ${project.info?.source_count || 0} 个源文件</span>`;
     button.addEventListener("click", () => {
       state.selectedProjectId = project.id;
       renderProjectList();
       renderProjectDetail(project);
     });
-    projectList.append(button);
+
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.className = "project-delete";
+    deleteButton.textContent = "删除";
+    deleteButton.dataset.deleteProjectId = project.id;
+    deleteButton.setAttribute("aria-label", `删除项目 ${project.name}`);
+    deleteButton.addEventListener("click", () => {
+      deleteProject(project).catch((error) => showToast(error.message));
+    });
+
+    row.append(button, deleteButton);
+    projectList.append(row);
   }
 }
 
@@ -310,6 +331,41 @@ async function createProject(event) {
   showToast("项目已创建");
 }
 
+async function deleteProject(project) {
+  if (!project) return;
+  const confirmed = window.confirm(`确定删除项目“${project.name}”吗？项目记录和 Web 项目目录都会被删除。`);
+  if (!confirmed) return;
+
+  setDeleteBusy(project.id, true);
+  try {
+    const data = await api(`/api/projects/${project.id}`, { method: "DELETE" });
+    if (state.selectedProjectId === project.id) {
+      window.clearTimeout(state.pollTimer);
+      state.selectedProjectId = null;
+      state.activeJobId = null;
+      state.previewIndex = 0;
+    }
+    await loadProjects();
+    showToast(data.warning || "项目已删除");
+  } finally {
+    setDeleteBusy(project.id, false);
+  }
+}
+
+async function deleteSelectedProject() {
+  const project = state.projects.find((item) => item.id === state.selectedProjectId);
+  await deleteProject(project);
+}
+
+function setDeleteBusy(projectId, isBusy) {
+  if (state.selectedProjectId === projectId) {
+    $("#deleteProjectBtn").disabled = isBusy;
+  }
+  document.querySelectorAll(`[data-delete-project-id="${projectId}"]`).forEach((button) => {
+    button.disabled = isBusy;
+  });
+}
+
 async function uploadSources(event) {
   event.preventDefault();
   if (!state.selectedProjectId) return;
@@ -410,6 +466,10 @@ $("#uploadForm").addEventListener("submit", (event) => {
 
 $("#refreshBtn").addEventListener("click", () => {
   loadProjects().catch((error) => showToast(error.message));
+});
+
+$("#deleteProjectBtn").addEventListener("click", () => {
+  deleteSelectedProject().catch((error) => showToast(error.message));
 });
 
 document.querySelectorAll("[data-job]").forEach((button) => {

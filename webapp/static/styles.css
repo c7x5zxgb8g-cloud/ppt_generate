@@ -51,6 +51,12 @@ button.secondary {
   color: var(--accent);
 }
 
+button.danger {
+  border-color: var(--danger);
+  background: var(--surface);
+  color: var(--danger);
+}
+
 button.ghost,
 button.icon {
   border-color: transparent;
@@ -195,8 +201,15 @@ main {
   padding-top: 16px;
 }
 
+.project-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: stretch;
+}
+
 .project-item {
-  width: 100%;
+  min-width: 0;
   min-height: 64px;
   display: grid;
   gap: 3px;
@@ -208,7 +221,7 @@ main {
   text-align: left;
 }
 
-.project-item.active {
+.project-row.active .project-item {
   border-color: var(--accent);
   background: #edf6f2;
 }
@@ -216,6 +229,17 @@ main {
 .project-item span {
   color: var(--muted);
   font-size: 12px;
+}
+
+.project-delete {
+  align-self: stretch;
+  min-width: 56px;
+  min-height: 64px;
+  border-color: #e1b0a1;
+  background: #fff1ed;
+  color: var(--danger);
+  padding: 0 10px;
+  font-size: 13px;
 }
 
 .workspace {
@@ -243,6 +267,13 @@ main {
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
+}
+
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .path {

@@ -2052,6 +2052,30 @@ python3 skills/ppt-master/scripts/svg_to_pptx.py "{project_path}"
 """
 
 
+def project_owned_directory(project: sqlite3.Row) -> Path | None:
+    user_root = (REPO_ROOT / "projects" / "web" / project["user_id"]).resolve()
+    project_path = Path(project["project_path"]).resolve()
+    try:
+        project_path.relative_to(user_root)
+    except ValueError:
+        return None
+    if project_path == user_root:
+        return None
+    return project_path
+
+
+def delete_project_directory(project: sqlite3.Row) -> tuple[bool, str | None]:
+    project_path = project_owned_directory(project)
+    if project_path is None:
+        return False, "项目目录不在当前用户的 Web 项目空间内，已仅删除数据库记录"
+    if not project_path.exists():
+        return False, "项目目录已不存在，已删除数据库记录"
+    if not project_path.is_dir():
+        return False, "项目路径不是目录，已仅删除数据库记录"
+    shutil.rmtree(project_path)
+    return True, None
+
+
 def create_app() -> Flask:
     init_db()
     app = Flask(
@@ -2180,6 +2204,37 @@ def create_app() -> Flask:
     def get_project(project_id: str):
         project = get_project_for_user(project_id)
         return jsonify({"data": project_payload(project)})
+
+    @app.delete("/api/projects/<project_id>")
+    @require_auth
+    def delete_project(project_id: str):
+        user = current_user()
+        project = get_project_for_user(project_id)
+        active_job = query_one(
+            """
+            SELECT id, type, status FROM jobs
+            WHERE project_id = ? AND status IN ('queued', 'running')
+            LIMIT 1
+            """,
+            (project_id,),
+        )
+        if active_job is not None:
+            return json_error(409, "PROJECT_HAS_ACTIVE_JOB", "项目有正在运行的任务，完成后再删除")
+
+        try:
+            files_deleted, warning = delete_project_directory(project)
+        except Exception as exc:
+            return json_error(500, "PROJECT_DELETE_FAILED", "项目目录删除失败", str(exc))
+
+        execute("DELETE FROM projects WHERE id = ? AND user_id = ?", (project_id, user["id"]))
+        payload: dict[str, Any] = {
+            "ok": True,
+            "deletedProjectId": project_id,
+            "filesDeleted": files_deleted,
+        }
+        if warning:
+            payload["warning"] = warning
+        return jsonify(payload)
 
     @app.post("/api/projects/<project_id>/sources")
     @require_auth
