@@ -73,7 +73,10 @@ API runner 提供接近 CLI agent 的受限工具能力：
 
 ```bash
 export PPT_MASTER_DEFAULT_IMAGE_SIZE=512px
+export PPT_MASTER_IMAGE_TOOL_TIMEOUT=240
 ```
+
+如果单张图片生成超时、失败，或没有产出预期文件，Web runner 会写入同名占位 PNG 并继续后续页面生成；任务日志会标记 `(placeholder)`，避免整套 PPT 卡在某一个图层。
 
 图片能力继续复用原项目配置：
 

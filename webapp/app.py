@@ -11,10 +11,12 @@ import os
 import re
 import shutil
 import sqlite3
+import struct
 import subprocess
 import sys
 import threading
 import uuid
+import zlib
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from functools import wraps
@@ -944,7 +946,7 @@ def build_api_agent_system_prompt() -> str:
 - Web 一键生成场景下，Eight Confirmations 视为已按保守默认值确认，不再向用户提问。
 - 源材料如果已经按“第 N 页”组织，生成页数、标题和内容必须逐页对应。
 - 不允许生成 Markdown 摘要式 PPT；每页必须是完整 SVG 页面，画布 1280x720，元素使用可编辑 SVG 文本和形状。
-- 如果设计需要照片、背景图、插画或外部图片，必须使用 run_image_search 或 run_image_generation；失败时按 PPT Master 规则降级为可编辑 SVG 图形或 Needs-Manual，而不是阻塞整套 PPT 生成。
+- 如果设计需要照片、背景图、插画或外部图片，必须使用 run_image_search 或 run_image_generation；run_image_generation 超时或失败时会自动写入同名占位 PNG 并返回 `placeholder=true`，此时必须继续引用该占位图，不要重试同一图片，不要阻塞整套 PPT 生成。
 - 不要为了省成本减少生图数量：只要页面表达需要图片资源，就按需要规划并生成；成本优化只通过低质量档和禁止 `2K/4K` 实现。
 - 图片默认使用 `image_size="512px"` 的低质量档；当前 OpenAI 兼容接口仍可能按最低像素预算输出约 1K 尺寸。
 - 使用 run_image_generation 前，必须先把整套 PPT 的视觉一致性写入 `images/image_prompts.md`：Deck Style Anchor、固定角色设定、色彩/材质/光照/构图约束、文字禁忌、每张图的用途和页面位置。
@@ -1127,7 +1129,7 @@ def api_agent_tools() -> list[dict[str, Any]]:
             "type": "function",
             "function": {
                 "name": "run_image_generation",
-                "description": "调用原项目 image_gen.py 使用配置好的 image2 图片模型生成图片到当前项目 images/。prompt 必须是完整图像 brief，包含整套 PPT 的统一视觉约束、具体场景、主体、人物形象、动作、构图、氛围和负面约束。",
+                "description": "调用原项目 image_gen.py 使用配置好的 image2 图片模型生成图片到当前项目 images/。prompt 必须是完整图像 brief，包含整套 PPT 的统一视觉约束、具体场景、主体、人物形象、动作、构图、氛围和负面约束。若生图超时或失败，工具会写入同名占位 PNG 并返回 placeholder=true；调用方应继续引用该图片，不要重试阻塞。",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -1343,16 +1345,121 @@ def tool_run_image_generation(arguments: dict[str, Any], project_path: Path, job
         command.extend(["--backend", backend])
     if model:
         command.extend(["--model", model])
-    result = run_tool_command(command, job_id, timeout=int(os.getenv("PPT_MASTER_IMAGE_TOOL_TIMEOUT", "900")))
+    timeout = int(os.getenv("PPT_MASTER_IMAGE_TOOL_TIMEOUT", "240"))
+    try:
+        result = run_tool_command(command, job_id, timeout=timeout)
+    except subprocess.TimeoutExpired as exc:
+        return placeholder_image_generation_result(
+            images_dir,
+            filename,
+            aspect_ratio,
+            refinement_used,
+            f"image generation timed out after {timeout}s",
+            job_id,
+            exc,
+        )
     after = {path.name for path in images_dir.iterdir() if path.is_file()}
     created = sorted(after - before)
+    expected = f"{filename}.png"
+    if result.returncode != 0 or expected not in after:
+        return placeholder_image_generation_result(
+            images_dir,
+            filename,
+            aspect_ratio,
+            refinement_used,
+            "image generation failed",
+            job_id,
+            output=combined_output(result),
+            returncode=result.returncode,
+        )
     return {
-        "ok": result.returncode == 0,
+        "ok": True,
         "returncode": result.returncode,
         "created": created,
+        "placeholder": False,
         "prompt_refined": refinement_used,
         "output": truncate_text(combined_output(result), 30000),
     }
+
+
+def placeholder_image_generation_result(
+    images_dir: Path,
+    filename: str,
+    aspect_ratio: str,
+    refinement_used: bool,
+    reason: str,
+    job_id: str | None,
+    exc: subprocess.TimeoutExpired | None = None,
+    output: str = "",
+    returncode: int | None = None,
+) -> dict[str, Any]:
+    placeholder_path = images_dir / f"{filename}.png"
+    write_placeholder_png(placeholder_path, aspect_ratio, filename)
+    message = f"[AI image] {reason}; wrote placeholder {placeholder_path.name}\n"
+    if job_id:
+        append_job_log(job_id, message)
+        if exc and exc.stdout:
+            append_job_log(job_id, truncate_text(str(exc.stdout), 8000))
+        if exc and exc.stderr:
+            append_job_log(job_id, truncate_text(str(exc.stderr), 8000))
+        if output:
+            append_job_log(job_id, truncate_text(output, 8000))
+    return {
+        "ok": True,
+        "returncode": returncode,
+        "created": [placeholder_path.name],
+        "placeholder": True,
+        "prompt_refined": refinement_used,
+        "warning": reason,
+        "output": truncate_text(output or message, 30000),
+    }
+
+
+def write_placeholder_png(path: Path, aspect_ratio: str, label: str) -> None:
+    width, height = placeholder_dimensions(aspect_ratio)
+    bg = (242, 238, 229)
+    border = (180, 167, 145)
+    accent = (217, 79, 79)
+    rows = []
+    for y in range(height):
+        row = bytearray()
+        for x in range(width):
+            pixel = bg
+            if x < 8 or y < 8 or x >= width - 8 or y >= height - 8:
+                pixel = border
+            elif abs((x / max(width, 1)) - (y / max(height, 1))) < 0.006:
+                pixel = accent
+            row.extend(pixel)
+        rows.append(b"\x00" + bytes(row))
+    raw = b"".join(rows)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(
+        b"\x89PNG\r\n\x1a\n"
+        + png_chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0))
+        + png_chunk(b"tEXt", f"placeholder\0{label}".encode("utf-8", errors="replace"))
+        + png_chunk(b"IDAT", zlib.compress(raw, level=6))
+        + png_chunk(b"IEND", b"")
+    )
+
+
+def png_chunk(kind: bytes, data: bytes) -> bytes:
+    return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", zlib.crc32(kind + data) & 0xFFFFFFFF)
+
+
+def placeholder_dimensions(aspect_ratio: str) -> tuple[int, int]:
+    mapping = {
+        "1:1": (1024, 1024),
+        "2:3": (768, 1152),
+        "3:2": (1152, 768),
+        "3:4": (768, 1024),
+        "4:3": (1024, 768),
+        "4:5": (768, 960),
+        "5:4": (960, 768),
+        "9:16": (720, 1280),
+        "16:9": (1280, 720),
+        "21:9": (1344, 576),
+    }
+    return mapping.get(aspect_ratio, (1280, 720))
 
 
 def build_image2_generation_prompt(
@@ -1756,6 +1863,8 @@ def format_tool_log(tool_name: str, arguments: dict[str, Any], result: dict[str,
         return f"[AI tool] run_image_search {filename} -> {'ok' if result.get('ok') else result.get('error') or 'failed'}\n"
     if tool_name == "run_image_generation":
         created = ", ".join(result.get("created", [])) if result.get("ok") else result.get("error") or "failed"
+        if result.get("placeholder"):
+            created = f"{created} (placeholder)"
         return f"[AI tool] run_image_generation -> {created}\n"
     return f"[AI tool] {tool_name} -> {'ok' if result.get('ok') else result.get('error')}\n"
 
